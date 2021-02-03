@@ -25,12 +25,14 @@ class Listener:
             return data
 
     def execute_remotely(self, command):
-        sending_command = command
+        sending_array = command.split()
+        # sending_command = command
         command_split = command.split()
         if command_split[0] == "upload" and command_split[1] is not None:
-            sending_command = f"upload {command_split[1]} " + self.read_file(command_split[1])
+            sending_array.append(self.read_file(command_split[1]))
+            # sending_command = f"upload {command_split[1]} " + self.read_file(command_split[1])
 
-        self.reliable_send(sending_command)
+        self.reliable_send(sending_array)
 
         if command_split[0] == "quit":
             exit()
